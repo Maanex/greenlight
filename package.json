@@ -1,0 +1,41 @@
+{
+  "name": "greenlight-bot",
+  "version": "1.0.0",
+  "description": "The official Discord Bot for FreeStuffBot.xyz",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "node ./build/index.js",
+    "build": "tsc",
+    "dev": "tsc && node --trace-warnings ./build/index.js --noSharding",
+    "test": "echo \"No test specified\" && exit 0",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
+  },
+  "author": "Tude",
+  "contributors": [
+    "Maanex (https://maanex.me)"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "@sentry/node": "^5.22.3",
+    "axios": "^0.20.0",
+    "chalk": "^3.0.0",
+    "cron": "^1.8.2",
+    "discord.js": "^12.3.1",
+    "eslint": "^7.16.0",
+    "git-last-commit": "^1.0.0",
+    "mongodb": "^3.6.0",
+    "reflect-metadata": "^0.1.13",
+    "request": "^2.88.2",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  },
+  "devDependencies": {
+    "@nuxtjs/eslint-config-typescript": "^5.0.0",
+    "@types/axios": "^0.14.0",
+    "@types/chalk": "^2.2.0",
+    "@types/cron": "^1.7.2",
+    "@types/mongodb": "^3.5.26",
+    "@types/node": "^12.12.54",
+    "eslint-plugin-nuxt": "^2.0.0"
+  }
+}
