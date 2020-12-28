@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./build/index.js",
     "build": "tsc",
-    "dev": "tsc && node --trace-warnings ./build/index.js --noSharding",
+    "dev": "tsc && node --trace-warnings ./build/index.js --noSharding --dev",
     "test": "echo \"No test specified\" && exit 0",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
   },

@@ -1,0 +1,20 @@
+{
+  "_id": "freestuff",
+  "discord_guild_ids": [
+    "517009303203479572"
+  ],
+  "admins": [
+    "137258778092503042",
+    "171675309177831424"
+  ],
+  "display": {
+    "token_icon": "",
+    "token_name_zero": "",
+    "token_name_one": "",
+    "token_name_multiple": ""
+  },
+  "texts": {
+    "info": "",
+    "get_tokens": ""
+  }
+}

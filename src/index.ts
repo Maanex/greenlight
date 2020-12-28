@@ -2,12 +2,14 @@
 
 export const config = require('../config.js')
 
-import { Client, ClientOptions } from 'discord.js'
+import { Client, ClientOptions, User } from 'discord.js'
 import * as chalk from 'chalk'
 import MongoAdapter from './database/mongo-adapter'
 import Database from './database/database'
 import { logVersionDetails } from './util/git-parser'
 import ParseArgs from './util/parse-args'
+import InteractionReceiver from './core/interactions-receiver'
+import DatabaseManager from './core/database-manager'
 
 
 export class GreenlightBot extends Client {
@@ -31,6 +33,7 @@ export class GreenlightBot extends Client {
     }
 
     logVersionDetails()
+    fixReactionEvent(this)
 
     MongoAdapter.connect(config.mongodb.url)
       .catch((err) => {
@@ -40,6 +43,9 @@ export class GreenlightBot extends Client {
         console.log('Connected to Mongo')
 
         await Database.init()
+
+        InteractionReceiver.init(this)
+        DatabaseManager.init(this)
 
         // TODO find an actual fix for this instead of this garbage lol
         const manualConnectTimer = setTimeout(() => {
@@ -56,12 +62,6 @@ export class GreenlightBot extends Client {
           updateActivity(this.user)
 
           clearTimeout(manualConnectTimer)
-
-          if (!this.devMode) {
-            const updateStats = c => c.dbl.postStats(c.guilds.cache.size, c.options.shards[0], c.options.shardCount)
-            this.setInterval(updateStats, 1000 * 60 * 30, this)
-            updateStats(this)
-          }
         })
 
         this.login(config.bot.token)
@@ -111,3 +111,24 @@ export const Core = new GreenlightBot(
   },
   params
 )
+
+
+function fixReactionEvent(bot: GreenlightBot) {
+  const events = {
+    MESSAGE_REACTION_ADD: 'messageReactionAdd',
+    MESSAGE_REACTION_REMOVE: 'messageReactionRemove'
+  }
+
+  bot.on('raw', async (event: Event) => {
+    const ev: any = event
+    if (!events.hasOwnProperty(ev.t)) return // eslint-disable-line
+    const data = ev.d
+    const user: User = bot.users.cache.get(data.user_id)
+    const channel: any = bot.channels.cache.get(data.channel_id) || await user.createDM()
+    if (channel.messages.has(data.message_id)) return
+    const message = await channel.fetchMessage(data.message_id)
+    const emojiKey = (data.emoji.id) ? `${data.emoji.name}:${data.emoji.id}` : data.emoji.name
+    const reaction = message.reactions.get(emojiKey)
+    bot.emit(events[ev.t], reaction, user)
+  })
+}
