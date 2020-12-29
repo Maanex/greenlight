@@ -38,6 +38,18 @@ export default class DatabaseManager {
     return this.projectsCacheDataByGuild.get(id) || null
   }
 
+  public static async findProject(search: (project: Project) => boolean): Promise<Project | null> {
+    await this.updateCache()
+    for (const p of this.projectsCacheDataById.values())
+      if (search(p)) return p
+    return null
+  }
+
+  public static async getProjects(): Promise<IterableIterator<Project>> {
+    await this.updateCache()
+    return this.projectsCacheDataById.values()
+  }
+
   private static fetchProjects(): Promise<Project[]> {
     return Database
       .collection('_projects')

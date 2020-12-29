@@ -1,3 +1,4 @@
+import * as moment from 'moment'
 import notSetup from '../helper/not-setup-cmdh'
 import DatabaseManager from '../database-manager'
 import { Interaction, InteractionResponseFlags, CommandHandler, ReplyFunction, Transaction, Project } from '../../types'
@@ -31,18 +32,18 @@ export default class TokensHandler extends CommandHandler {
   }
 
   private static transactionToText(t: Transaction, project: Project): string {
-    const tokenDisplay = t.delta === 0
-      ? project.display.token_name_zero
-      : (t.delta === 1 || t.delta === -1)
-          ? project.display.token_name_one
-          : project.display.token_name_multiple
+    const token = project.display.token_icon
     const delta = t.delta < 0 ? t.delta : ('+' + t.delta)
+    const time = `(${moment(t.timestamp * 1000).fromNow()})`
     switch (t.type) {
-      case 'purchase': return `• ${delta} ${tokenDisplay}, purchased ${t.target}`
-      case 'fund': return `• ${delta} ${tokenDisplay}, funded ${t.target}`
-      case 'acquire': return `• ${delta} ${tokenDisplay}, through ${t.target}`
-      case 'admin': return `• ${delta} ${tokenDisplay}, by **<@${t.issuer}>** for **${t.reason}**`
-      case 'custom': return `• ${delta} ${tokenDisplay}, custom: ${t.id} with data: ${t.data}`
+      case 'purchase': return `${delta} ${token}, purchased ${t.target} ${time}`
+      case 'fund': return `${delta} ${token}, funded ${t.target} ${time}`
+      case 'admin': return `${delta} ${token}, by **<@${t.issuer}>** for **${t.reason}** ${time}`
+      case 'custom': return `${delta} ${token}, custom: ${t.id} with data: ${t.data} ${time}`
+
+      case 'acquire':
+        if (t.target === 'topgg') return `${delta} ${token} for voting on top.gg ${time}`
+        return `${delta} ${token}, through ${t.target} ${time}`
     }
   }
 

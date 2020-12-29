@@ -15,5 +15,16 @@
   "texts": {
     "info": "HERE IS SOME INFO",
     "get_tokens": "HERE IS HOW TO GET <GENERIC:TOKEN>"
+  },
+  "integrations": {
+    "topgg": {
+      "bots": [
+        {
+          "id": "672822334641537041",
+          "auth": "S7Un9297bX7!0aM8tk",
+          "reward": 1
+        }
+      ]
+    }
   }
 }

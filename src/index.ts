@@ -10,6 +10,7 @@ import { logVersionDetails } from './util/git-parser'
 import ParseArgs from './util/parse-args'
 import InteractionReceiver from './core/interactions-receiver'
 import DatabaseManager from './core/database-manager'
+import Server from './server/server'
 
 
 export class GreenlightBot extends Client {
@@ -46,6 +47,8 @@ export class GreenlightBot extends Client {
 
         InteractionReceiver.init(this)
         DatabaseManager.init(this)
+
+        Server.start(5008)
 
         // TODO find an actual fix for this instead of this garbage lol
         const manualConnectTimer = setTimeout(() => {

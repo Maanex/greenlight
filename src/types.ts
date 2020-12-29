@@ -72,6 +72,21 @@ export interface Project {
   texts: {
     info: string,
     get_tokens: string
+  },
+  integrations?: {
+    topgg?: {
+      bots: {
+        id: string,
+        auth: string,
+        reward: number,
+        reward_weekend?: number
+      }[],
+      announce: {
+        location: 'dm' | string,
+        text: string,
+        text_weekend?: string
+      }
+    }
   }
 }
 
