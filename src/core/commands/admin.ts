@@ -1,6 +1,7 @@
 import notSetup from '../helper/not-setup-cmdh'
 import DatabaseManager from '../database-manager'
 import { Interaction, CommandHandler, ReplyFunction, Project, InteractionResponseFlags } from '../../types'
+import { generateProgressBar } from '../../lib/emoji-progessbar'
 
 
 export default class AdminHandler extends CommandHandler {
@@ -24,6 +25,7 @@ export default class AdminHandler extends CommandHandler {
 
       switch (subcmd.name) {
         case 'tokens': return AdminHandler.subcmdTokens(command, options, project, reply)
+        case 'test': return AdminHandler.subcmdTest(command, options, project, reply)
       }
     }
   }
@@ -45,6 +47,12 @@ export default class AdminHandler extends CommandHandler {
         : '**Error!** Here is what went wrong:\n```' + failed + '```',
       flags: InteractionResponseFlags.EPHEMERAL
     })
+  }
+
+  private static async subcmdTest(command: Interaction, options: { [name: string]: string | number }, project: Project, reply: ReplyFunction) {
+    const prog = Math.random()
+    const width = Math.floor(Math.random() * 10) + 2
+    const text = `${prog} • ${width}\n${generateProgressBar(prog, width)}`
   }
 
 }

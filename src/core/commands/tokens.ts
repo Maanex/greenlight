@@ -2,6 +2,7 @@ import * as moment from 'moment'
 import notSetup from '../helper/not-setup-cmdh'
 import DatabaseManager from '../database-manager'
 import { Interaction, InteractionResponseFlags, CommandHandler, ReplyFunction, Transaction, Project } from '../../types'
+import { Core } from '../../index'
 
 
 export default class TokensHandler extends CommandHandler {
@@ -14,13 +15,13 @@ export default class TokensHandler extends CommandHandler {
 
     let text = ''
     if (user) {
-      text = `**You have ${user.tokens} ${project.display.token_icon}**\n\nRecent transactions:\n`
-      text += user
+      const trans = await Promise.all(user
         .transactions
         .reverse()
         .splice(0, 5)
-        .map(t => TokensHandler.transactionToText(t, project))
-        .join('\n')
+        .map(async t => await TokensHandler.transactionToText(t, project))
+      )
+      text = `**You have ${user.tokens} ${project.display.token_icon}**\n\nRecent transactions:\n\`\`\`diff\n${trans.join('\n')}\`\`\``
     } else {
       text = `**You have 0 ${project.display.token_icon}**\n\n${project.texts.get_tokens}`
     }
@@ -31,19 +32,18 @@ export default class TokensHandler extends CommandHandler {
     })
   }
 
-  private static transactionToText(t: Transaction, project: Project): string {
-    const token = project.display.token_icon
+  private static async transactionToText(t: Transaction, _project: Project): Promise<string> {
     const delta = t.delta < 0 ? t.delta : ('+' + t.delta)
     const time = `(${moment(t.timestamp * 1000).fromNow()})`
     switch (t.type) {
-      case 'purchase': return `${delta} ${token}, purchased ${t.target} ${time}`
-      case 'fund': return `${delta} ${token}, funded ${t.target} ${time}`
-      case 'admin': return `${delta} ${token}, by **<@${t.issuer}>** for **${t.reason}** ${time}`
-      case 'custom': return `${delta} ${token}, custom: ${t.id} with data: ${t.data} ${time}`
+      case 'purchase': return `${delta} by purchasing ${t.target} ${time}`
+      case 'fund': return `${delta} by funding ${t.target} ${time}`
+      case 'admin': return `${delta} by ${(await Core.users.fetch(t.issuer)).username} for reason: ${t.reason} ${time}`
+      case 'custom': return `${delta} custom: ${t.id} with data: ${t.data} ${time}`
 
       case 'acquire':
-        if (t.target === 'topgg') return `${delta} ${token} for voting on top.gg ${time}`
-        return `${delta} ${token}, through ${t.target} ${time}`
+        if (t.target === 'topgg') return `${delta} for voting on top.gg ${time}`
+        return `${delta} through ${t.target} ${time}`
     }
   }
 

@@ -15,7 +15,10 @@ async function run() {
 
   await Promise.all(data.map(d => axios.delete(`https://discord.com/api/v8/applications/${clientid}/commands/${d.id}`, opts)))
 
-  axios.post(`https://discord.com/api/v8/applications/${clientid}/commands`, opts)
+  axios.post(`https://discord.com/api/v8/applications/${clientid}/commands`, {
+    name: 'tokens',
+    description: 'See how many greenlight tokens you have'
+  }, opts)
 
   axios.post(`https://discord.com/api/v8/applications/${clientid}/commands`, {
     name: 'admin',
@@ -43,6 +46,19 @@ async function run() {
             description: 'Why?',
             type: 3,
             required: true
+          }
+        ]
+      },
+      {
+        name: 'test',
+        description: 'test',
+        type: 1,
+        options: [
+          {
+            name: 'args',
+            description: 'args',
+            type: 3,
+            required: false
           }
         ]
       }
