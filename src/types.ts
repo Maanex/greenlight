@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 
-import { MessageEmbed } from 'discord.js'
+import { Message, MessageEmbed } from 'discord.js'
 
 
 export type Interaction = {
@@ -47,7 +47,7 @@ export type InteractionApplicationCommandCallbackData = {
   tts?: boolean,
   content: string,
   flags?: InteractionResponseFlags
-  embeds?: MessageEmbed[],
+  embeds?: Partial<MessageEmbed>[],
   allowed_mentions?: any
 }
 
@@ -59,21 +59,35 @@ export abstract class CommandHandler {
 
 }
 
+export interface Goal {
+  readonly _id: number,
+  readonly cost: number,
+  readonly current: number,
+  readonly title: string,
+  readonly description: string,
+  readonly projectid: string,
+  message_channel: string
+  message_id: string,
+  message: Message,
+  addPledge(amount: number, user: string)
+}
+
 export interface Project {
-  _id: string,
-  discord_guild_ids: string[],
-  admins: string[],
-  display: {
-    token_icon: string,
-    token_name_zero: string,
-    token_name_one: string,
-    token_name_multiple: string
+  readonly _id: string,
+  readonly discord_guild_id: string,
+  readonly admins: string[],
+  readonly display: {
+    readonly token_icon_one: string,
+    readonly token_icon_multiple: string,
+    readonly token_name_zero: string,
+    readonly token_name_one: string,
+    readonly token_name_multiple: string
   },
-  texts: {
-    info: string,
-    get_tokens: string
+  readonly texts: {
+    readonly info: string,
+    readonly get_tokens: string
   },
-  integrations?: {
+  readonly integrations?: {
     topgg?: {
       bots: {
         id: string,
@@ -87,7 +101,8 @@ export interface Project {
         text_weekend?: string
       }
     }
-  }
+  },
+  readonly goals: Goal[]
 }
 
 export type Transaction = ({

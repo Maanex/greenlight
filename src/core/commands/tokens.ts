@@ -21,12 +21,12 @@ export default class TokensHandler extends CommandHandler {
         .splice(0, 5)
         .map(async t => await TokensHandler.transactionToText(t, project))
       )
-      text = `**You have ${user.tokens} ${project.display.token_icon}**\n\nRecent transactions:\n\`\`\`diff\n${trans.join('\n')}\`\`\``
+      text = `**You have ${user.tokens} ${project.display.token_icon_one}**\n\nRecent transactions:\n\`\`\`diff\n${trans.join('\n')}\`\`\``
     } else {
-      text = `**You have 0 ${project.display.token_icon}**\n\n${project.texts.get_tokens}`
+      text = `**You have 0 ${project.display.token_icon_one}**\n\n${project.texts.get_tokens}`
     }
 
-    reply('ChannelMessageWithSource', {
+    reply('ChannelMessage', {
       content: text,
       flags: InteractionResponseFlags.EPHEMERAL
     })

@@ -28,9 +28,9 @@ export default class InteractionReceiver {
   }
 
   private static getReplyFunction(i: Interaction): ReplyFunction {
+    const types: InteractionResponseType[] = [ 'Pong', 'Acknowledge', 'ChannelMessage', 'ChannelMessageWithSource', 'AcknowledgeWithSource' ]
     return (type: InteractionResponseType, data?: InteractionApplicationCommandCallbackData) => {
-      const types: InteractionResponseType[] = [ 'Pong', 'Acknowledge', 'ChannelMessage', 'ChannelMessageWithSource', 'AcknowledgeWithSource' ]
-      Axios.post(`https://discord.com/api/v8/interactions/${i.id}/${i.token}/callback`, { type: types.indexOf(type), data })
+      Axios.post(`https://discord.com/api/v8/interactions/${i.id}/${i.token}/callback`, { type: types.indexOf(type) + 1, data })
     }
   }
 
