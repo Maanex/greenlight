@@ -62,13 +62,21 @@ export abstract class CommandHandler {
 export interface Goal {
   readonly _id: number,
   readonly cost: number,
-  readonly current: number,
+  current: number,
   readonly title: string,
   readonly description: string,
+  readonly message_channel: string
+  readonly message_id: string,
+  user: {
+    [userid: string]: number
+  },
+
+  // runtime
   readonly projectid: string,
-  message_channel: string
-  message_id: string,
-  message: Message,
+  readonly message: Message,
+  recents: {
+    [userid: string]: number
+  },
   addPledge(amount: number, user: string)
 }
 
@@ -106,7 +114,10 @@ export interface Project {
 }
 
 export type Transaction = ({
-  type: 'purchase' | 'fund' | 'acquire',
+  type: 'purchase' | 'pledge',
+  target: number
+} | {
+  type: 'acquire',
   target: string
 } | {
   type: 'admin',

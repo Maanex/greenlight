@@ -53,7 +53,9 @@ export default class AdminHandler extends CommandHandler {
   }
 
   private static async subcmdTest(command: Interaction, options: { [name: string]: string | number }, project: Project, reply: ReplyFunction) {
-    project.goals[0].addPledge(1, command.member.user.id)
+    await project.goals[0].message.react(project.display.token_icon_one)
+    await project.goals[0].message.react(project.display.token_icon_multiple)
+    // project.goals[0].addPledge(1, command.member.user.id)
     // const goal = Math.floor(Math.random() * 100) + 10
     // const pledges = Math.random() > 0.2 ? goal : Math.floor(Math.random() * goal)
     // const reached = goal === pledges

@@ -32,12 +32,12 @@ export default class TokensHandler extends CommandHandler {
     })
   }
 
-  private static async transactionToText(t: Transaction, _project: Project): Promise<string> {
+  private static async transactionToText(t: Transaction, project: Project): Promise<string> {
     const delta = t.delta < 0 ? t.delta : ('+' + t.delta)
     const time = `(${moment(t.timestamp * 1000).fromNow()})`
     switch (t.type) {
       case 'purchase': return `${delta} by purchasing ${t.target} ${time}`
-      case 'fund': return `${delta} by funding ${t.target} ${time}`
+      case 'pledge': return `${delta} by contributing to goal "${project.goals.find(g => g._id === t.target).title}" ${time}`
       case 'admin': return `${delta} by ${(await Core.users.fetch(t.issuer)).username} for reason: ${t.reason} ${time}`
       case 'custom': return `${delta} custom: ${t.id} with data: ${t.data} ${time}`
 

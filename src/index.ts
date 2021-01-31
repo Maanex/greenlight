@@ -2,7 +2,7 @@
 
 export const config = require('../config.js')
 
-import { Client, ClientOptions, User } from 'discord.js'
+import { Client, ClientOptions } from 'discord.js'
 import * as chalk from 'chalk'
 import MongoAdapter from './database/mongo-adapter'
 import Database from './database/database'
@@ -11,6 +11,10 @@ import ParseArgs from './util/parse-args'
 import InteractionReceiver from './core/interactions-receiver'
 import DatabaseManager from './core/database-manager'
 import Server from './server/server'
+import ReactionsListener from './core/events/reactions'
+import GoalHandler from './core/goal-handler'
+
+const isDocker = require('is-docker')
 
 
 export class GreenlightBot extends Client {
@@ -24,6 +28,8 @@ export class GreenlightBot extends Client {
     this.devMode = process.env.NODE_ENV === 'dev'
     this.singleShard = !!params.noSharding
 
+    if (isDocker())
+      console.log(chalk.white.bold('Running containerized'))
     if (this.devMode) {
       console.log(chalk.bgRedBright.black(' RUNNING DEV MODE '))
       console.log(chalk.yellowBright('Skipping Sentry initialization ...'))
@@ -34,7 +40,6 @@ export class GreenlightBot extends Client {
     }
 
     logVersionDetails()
-    fixReactionEvent(this)
 
     MongoAdapter.connect(config.mongodb.url)
       .catch((err) => {
@@ -47,6 +52,8 @@ export class GreenlightBot extends Client {
 
         InteractionReceiver.init(this)
         DatabaseManager.init(this)
+        ReactionsListener.init(this)
+        GoalHandler.init(this)
 
         Server.start(5008)
 
@@ -84,7 +91,14 @@ export class GreenlightBot extends Client {
 
 }
 
-const params = ParseArgs.parse(process.argv)
+const params = {
+  noSharding: process.env.NO_SHARDING,
+  shardCount: process.env.SHARD_COUNT,
+  shardId: process.env.SHARD_ID
+}
+const args = ParseArgs.parse(process.argv)
+for (const name in args)
+  params[name] = args[name]
 
 const sharding = !params.noSharding
 if (sharding && (!params.shardCount || !params.shardId)) {
@@ -102,36 +116,16 @@ export const Core = new GreenlightBot(
   {
     ws: {
       intents: [
-        'GUILDS'
+        'GUILDS',
+        'GUILD_MESSAGE_REACTIONS'
       ]
     },
     disableMentions: 'none',
-    messageSweepInterval: 2,
-    messageCacheLifetime: 2,
-    messageCacheMaxSize: 2,
+    // messageSweepInterval: 2,
+    // messageCacheLifetime: 2,
+    // messageCacheMaxSize: 2,
     shardCount: sharding ? shardCount : 1,
     shards: [ (sharding ? shardId : 0) ]
   },
   params
 )
-
-
-function fixReactionEvent(bot: GreenlightBot) {
-  const events = {
-    MESSAGE_REACTION_ADD: 'messageReactionAdd',
-    MESSAGE_REACTION_REMOVE: 'messageReactionRemove'
-  }
-
-  bot.on('raw', async (event: Event) => {
-    const ev: any = event
-    if (!events.hasOwnProperty(ev.t)) return // eslint-disable-line
-    const data = ev.d
-    const user: User = bot.users.cache.get(data.user_id)
-    const channel: any = bot.channels.cache.get(data.channel_id) || await user.createDM()
-    if (channel.messages.has(data.message_id)) return
-    const message = await channel.fetchMessage(data.message_id)
-    const emojiKey = (data.emoji.id) ? `${data.emoji.name}:${data.emoji.id}` : data.emoji.name
-    const reaction = message.reactions.get(emojiKey)
-    bot.emit(events[ev.t], reaction, user)
-  })
-}
