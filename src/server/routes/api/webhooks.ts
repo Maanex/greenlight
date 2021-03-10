@@ -23,6 +23,9 @@ router.post(
         ? conf.reward_weekend
         : conf.reward
 
+      const guild = await Core.guilds.fetch(project.discord_guild_id)
+      if (!guild.members.resolve(req.body.user)) continue
+
       const error = await DatabaseManager.modTokens(req.body.user, project._id, delta, {
         type: 'acquire',
         delta,

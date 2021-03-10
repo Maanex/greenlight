@@ -1,4 +1,5 @@
 /* eslint-disable no-undef */
+import Axios from 'axios'
 import { GreenlightBot } from 'index'
 import Database from '../database/database'
 import generateEmbedFromGoal from '../lib/goal-as-embed'
@@ -52,7 +53,9 @@ export default class GoalHandler {
 
   public async addPledge(amount: number, user: string) {
     const userdata = await DatabaseManager.getUser(user, this.goal.projectid)
-    const usertokens = userdata.tokens - Math.abs(this.goal.recents[user] || 0)
+    const usertokens = userdata ? (userdata.tokens - Math.abs(this.goal.recents[user] || 0)) : 0
+    const isGoalComplete = this.goal.current >= this.goal.cost
+
     if (usertokens >= amount) {
       this.goal.current += amount
       this.goal.recents[user] = (this.goal.recents[user] || 0) + amount
@@ -66,6 +69,9 @@ export default class GoalHandler {
       if (!rn) this.goal.recents[user] = 0
       else if (rn > 0) this.goal.recents[user] *= -1
     }
+
+    if (!isGoalComplete && this.goal.current >= this.goal.cost)
+      this.postGoalCompleteMessage()
 
     if (!GoalHandler.goalUpdateQueue.includes(this.goal.message_id))
       GoalHandler.goalUpdateQueue.push(this.goal.message_id)
@@ -101,6 +107,18 @@ export default class GoalHandler {
     if (GoalHandler.userRecentsTimeout.has(user))
       clearTimeout(GoalHandler.userRecentsTimeout.get(user))
     GoalHandler.userRecentsTimeout.set(user, timeout)
+  }
+
+  public async postGoalCompleteMessage() {
+    const project = await DatabaseManager.getProjectById(this.goal.projectid)
+    if (!project.goal_complete_webhook) return
+
+    Axios.post(project.goal_complete_webhook, {
+      embeds: [ {
+        title: 'Goal complete!',
+        description: `Goal "${this.goal.title}" reached it's goal of ${this.goal.cost} ${project.display.token_name_multiple}!\n[Go to message](${this.goal.message.url})`
+      } ]
+    })
   }
 
 }

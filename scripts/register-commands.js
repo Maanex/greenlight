@@ -61,6 +61,93 @@ async function run() {
             required: false
           }
         ]
+      },
+      {
+        name: 'addgoal',
+        description: 'Add a new goal',
+        type: 1,
+        options: [
+          {
+            name: 'title',
+            description: 'What\'s the goal\'s name?',
+            type: 3,
+            required: true
+          },
+          {
+            name: 'description',
+            description: 'Give it a description!',
+            type: 3,
+            required: true
+          },
+          {
+            name: 'cost',
+            description: 'How many tokens are required?',
+            type: 4,
+            required: true
+          },
+          {
+            name: 'channel',
+            description: 'Which channel shall be used to host this goal?',
+            type: 7,
+            required: true
+          }
+        ]
+      },
+      {
+        name: 'removegoal',
+        description: 'Remove a goal',
+        type: 1,
+        options: [
+          {
+            name: 'messageid',
+            description: 'Messageid of the goal',
+            type: 3,
+            required: true
+          }
+        ]
+      },
+      {
+        name: 'goalinfo',
+        description: 'View some info about a goal',
+        type: 1,
+        options: [
+          {
+            name: 'messageid',
+            description: 'Messageid of the goal',
+            type: 3,
+            required: true
+          }
+        ]
+      },
+      {
+        name: 'editgoal',
+        description: 'Edit a goal',
+        type: 1,
+        options: [
+          {
+            name: 'messageid',
+            description: 'Messageid of the goal',
+            type: 3,
+            required: true
+          },
+          {
+            name: 'property',
+            description: 'Which property to edit',
+            type: 3,
+            required: true,
+            choices: [
+              { name: 'Title', value: 'title' },
+              { name: 'Description', value: 'description' },
+              { name: 'Cost', value: 'cost' }
+            ]
+          },
+          {
+            name: 'new_value',
+            description: 'The propertie\'s new value',
+            type: 3,
+            required: true
+          }
+        ]
       }
     ]
   }, opts)

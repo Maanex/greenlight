@@ -2,7 +2,7 @@
 
 export const config = require('../config.js')
 
-import { Client, ClientOptions } from 'discord.js'
+import { Client, ClientOptions, TextChannel } from 'discord.js'
 import * as chalk from 'chalk'
 import MongoAdapter from './database/mongo-adapter'
 import Database from './database/database'
@@ -13,6 +13,7 @@ import DatabaseManager from './core/database-manager'
 import Server from './server/server'
 import ReactionsListener from './core/events/reactions'
 import GoalHandler from './core/goal-handler'
+import StoreHandler from './core/store-handler'
 
 const isDocker = require('is-docker')
 
@@ -54,6 +55,7 @@ export class GreenlightBot extends Client {
         DatabaseManager.init(this)
         ReactionsListener.init(this)
         GoalHandler.init(this)
+        StoreHandler.init(this)
 
         Server.start(5008)
 
@@ -63,7 +65,7 @@ export class GreenlightBot extends Client {
           this.ws?.connection?.triggerReady()
         }, 30000)
 
-        this.on('ready', () => {
+        this.on('ready', async () => {
           console.log(chalk`Bot ready! Logged in as {yellowBright ${this.user?.tag}} {gray (${params.noSharding ? 'No Sharding' : `Shard ${(options.shards as number[]).join(', ')} / ${options.shardCount}`})}`)
           if (this.devMode) console.log(this.guilds.cache.map(g => `${g.name} :: ${g.id}`))
 
@@ -72,6 +74,15 @@ export class GreenlightBot extends Client {
           updateActivity(this.user)
 
           clearTimeout(manualConnectTimer)
+
+          // load stores in cache
+          const projects = await DatabaseManager.getProjects()
+          for (const project of projects) {
+            if (!project.store) continue
+            const guild = await this.guilds.fetch(project.discord_guild_id)
+            const channel = guild.channels.resolve(project.store.channel_id) as TextChannel
+            channel?.messages.fetch()
+          }
         })
 
         this.login(config.bot.token)

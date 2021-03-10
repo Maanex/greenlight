@@ -1,8 +1,7 @@
 {
   "_id": "tudelab",
-  "discord_guild_ids": [
-    "342620626592464897"
-  ],
+  "discord_guild_id": "342620626592464897",
+  "goal_complete_webhook": "https://canary.discord.com/api/webhooks/818443554598682654/fU9JLmTxBesdRxBGSBJ4fPUhibzZtUSu0z64TR3Cwxy35NjvsZJoXsTDVL-ivY5QSknU",
   "admins": [
     "137258778092503042"
   ],
@@ -14,7 +13,8 @@
   },
   "texts": {
     "info": "HERE IS SOME INFO",
-    "get_tokens": "HERE IS HOW TO GET <GENERIC:TOKEN>"
+    "get_tokens": "HERE IS HOW TO GET <GENERIC:TOKEN>",
+    "store_info": "bla"
   },
   "integrations": {
     "topgg": {

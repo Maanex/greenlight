@@ -1,8 +1,7 @@
 {
   "_id": "freestuff",
-  "discord_guild_ids": [
-    "517009303203479572"
-  ],
+  "discord_guild_id": "517009303203479572",
+  "goal_complete_webhook": "https://canary.discord.com/api/webhooks/818443264423624725/RLhtSjothKVM9Bq2Kbm_uVNlUv8l4-Ez5-NIgOJcnobXkL5L3KiEuPX8El5Tsy3ByX3t",
   "admins": [
     "137258778092503042",
     "171675309177831424"

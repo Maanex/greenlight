@@ -1,10 +1,13 @@
-import { Emoji, TextChannel } from 'discord.js'
+import { TextChannel } from 'discord.js'
+import { generateAboutWidget } from '../../lib/about-widget'
+import { generateStoreWidget } from '../../lib/store-widget'
 import notSetup from '../helper/not-setup-cmdh'
 import DatabaseManager from '../database-manager'
-import { Interaction, CommandHandler, ReplyFunction, Project, InteractionResponseFlags } from '../../types'
-import { generateProgressBar } from '../../lib/emoji-progessbar'
+import { Interaction, CommandHandler, ReplyFunction, Project, InteractionResponseFlags, Goal } from '../../types'
 import Const from '../../const'
 import { Core } from '../../index'
+import GoalHandler from '../../core/goal-handler'
+import Database from '../../database/database'
 
 
 export default class AdminHandler extends CommandHandler {
@@ -29,6 +32,10 @@ export default class AdminHandler extends CommandHandler {
       switch (subcmd.name) {
         case 'tokens': return AdminHandler.subcmdTokens(command, options, project, reply)
         case 'test': return AdminHandler.subcmdTest(command, options, project, reply)
+        case 'addgoal': return AdminHandler.subcmdAddgoal(command, options, project, reply)
+        case 'removegoal': return AdminHandler.subcmdRemovegoal(command, options, project, reply)
+        case 'goalinfo': return AdminHandler.subcmdGoalinfo(command, options, project, reply)
+        case 'editgoal': return AdminHandler.subcmdEditgoal(command, options, project, reply)
       }
     }
   }
@@ -52,37 +59,124 @@ export default class AdminHandler extends CommandHandler {
     })
   }
 
-  private static async subcmdTest(command: Interaction, options: { [name: string]: string | number }, project: Project, reply: ReplyFunction) {
-    await project.goals[0].message.react(project.display.token_icon_one)
-    await project.goals[0].message.react(project.display.token_icon_multiple)
-    // project.goals[0].addPledge(1, command.member.user.id)
-    // const goal = Math.floor(Math.random() * 100) + 10
-    // const pledges = Math.random() > 0.2 ? goal : Math.floor(Math.random() * goal)
-    // const reached = goal === pledges
+  private static async subcmdTest(command: Interaction, _options: { [name: string]: string | number }, project: Project, reply: ReplyFunction) {
+    reply('Acknowledge')
 
-    // const description = [
-    //   'The currencies requested include Pounds and one other I don\'t remember. Once this suggestion is greenlight, we will ask you which currencies you would like to see.',
-    //   !reached ? '' : `\n${Const.EMOJIS.WHITESPACE}${Const.EMOJIS.WHITESPACE}${Const.EMOJIS.WHITESPACE}**Reached!**`,
-    //   Const.EMOJIS.WHITESPACE + ' ' + generateProgressBar(pledges / goal, 7) + Const.EMOJIS.WHITESPACE + ` ** ${pledges}/${goal}**`,
-    //   '',
-    //   `*${project.display.token_icon_one} contribute 1 ${project.display.token_name_one} ${Const.EMOJIS.WHITESPACE} ${project.display.token_icon_multiple} contribute 5 ${project.display.token_name_multiple}*`
-    // ].join('\n')
+    const guild = await Core.guilds.fetch(command.guild_id)
+    const channel = guild.channels.resolve(command.channel_id) as TextChannel
+    await channel.send(Const.EMOJIS.WHITESPACE, generateStoreWidget(project, []))
+  }
 
-    // reply('Acknowledge')
+  private static async subcmdAddgoal(command: Interaction, options: { [name: string]: string | number }, project: Project, reply: ReplyFunction) {
+    reply('Acknowledge')
 
-    // const guild = await Core.guilds.fetch(command.guild_id)
-    // const channel = guild.channels.resolve(command.channel_id) as TextChannel
+    const guild = await Core.guilds.fetch(command.guild_id)
+    const channel = guild.channels.resolve(options.channel + '') as TextChannel
 
-    // const message = await channel.send(Const.EMOJIS.WHITESPACE, {
-    //   embed: {
-    //     title: 'Add more currencies',
-    //     description,
-    //     color: reached ? 0x45B583 : 0x1F2324
-    //   }
-    // })
+    const messages = await channel.messages.fetch()
+    if (!(await DatabaseManager.getGoalFromMessage(messages.firstKey())))
+      messages.first()?.delete()
+    if (project.store.message_id)
+      channel.messages.cache.get(project.store.message_id)?.delete()
 
-    // await message.react(project.display.token_icon_one)
-    // await message.react(project.display.token_icon_multiple)
+    const message = await channel.send(Const.EMOJIS.WHITESPACE)
+
+    await message.react(project.display.token_icon_one)
+    await message.react(project.display.token_icon_multiple)
+
+    let goalId = 0
+    while (project.goals.find(g => g._id === goalId))
+      goalId++
+
+    const goal: Goal = {
+      _id: goalId,
+      cost: parseInt(options.cost + '', 10),
+      current: 0,
+      title: options.title + '',
+      description: options.description + '',
+      message_channel: channel.id,
+      message_id: message.id,
+      user: {},
+
+      // runtime
+      projectid: project._id,
+      message,
+      recents: {},
+      addPledge(amount: number, user: string) {
+        GoalHandler.forGoal(goal).addPledge(amount, user)
+      }
+    }
+
+    DatabaseManager.addGoal(project, goal)
+    DatabaseManager.updateCache(true)
+    GoalHandler.forGoal(goal).updateMessage()
+
+    if (project.store) {
+      const store = await channel.send('** **\n** **', generateStoreWidget(project, []))
+      Database
+        .collection('_projects')
+        .updateOne(
+          { _id: project._id },
+          {
+            $set: {
+              'store.message_id': store.id,
+              'store.channel_id': channel.id
+            }
+          }
+        )
+
+      for (const product of project.store.products)
+        await store.react(product.emoji)
+    }
+
+    await channel.send('** **\n** **', generateAboutWidget(project))
+  }
+
+  private static async subcmdEditgoal(_command: Interaction, options: { [name: string]: string | number }, project: Project, reply: ReplyFunction) {
+    reply('Acknowledge')
+
+    const goal = await DatabaseManager.getGoalFromMessage(options.messageid + '')
+    if (!goal) return
+    goal[options.property] = (options.property === 'cost') ? parseInt(options.new_value + '', 10) : options.new_value
+
+    GoalHandler.forGoal(goal).updateMessage()
+    const query = {
+      $set: { [options.property]: goal[options.property] }
+    }
+    Database
+      .collection(project._id + '_goals')
+      .updateOne({ _id: goal._id }, query)
+  }
+
+  private static async subcmdRemovegoal(_command: Interaction, options: { [name: string]: string | number }, project: Project, reply: ReplyFunction) {
+    reply('Acknowledge')
+
+    const goal = await DatabaseManager.getGoalFromMessage(options.messageid + '')
+    if (!goal) return
+
+    await Database
+      .collection(project._id + '_goals')
+      .deleteOne({ _id: goal._id })
+
+    goal.message.delete()
+
+    DatabaseManager.updateCache(true)
+  }
+
+  private static async subcmdGoalinfo(_command: Interaction, options: { [name: string]: string | number }, _project: Project, reply: ReplyFunction) {
+    const goal = await DatabaseManager.getGoalFromMessage(options.messageid + '')
+    if (!goal) {
+      reply('ChannelMessage', {
+        content: "That's not a goal :/",
+        flags: InteractionResponseFlags.EPHEMERAL
+      })
+      return
+    }
+
+    reply('ChannelMessage', {
+      content: `**${goal.title}**\n` + Object.keys(goal.user).map(k => `• <@${k}> ${goal.user[k]}`).join('\n'),
+      flags: InteractionResponseFlags.EPHEMERAL
+    })
   }
 
 }

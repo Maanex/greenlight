@@ -80,9 +80,25 @@ export interface Goal {
   addPledge(amount: number, user: string)
 }
 
+export type Product = {
+  name: string,
+  emoji: string,
+  price: number,
+  description: string
+} & (
+  {
+    type: 'role',
+    id: string
+  } | {
+    type: 'other'
+  }
+)
+
 export interface Project {
   readonly _id: string,
   readonly discord_guild_id: string,
+  readonly goal_complete_webhook: string,
+  readonly item_purchase_webhook: string,
   readonly admins: string[],
   readonly display: {
     readonly token_icon_one: string,
@@ -93,7 +109,8 @@ export interface Project {
   },
   readonly texts: {
     readonly info: string,
-    readonly get_tokens: string
+    readonly get_tokens: string,
+    readonly store_info: string
   },
   readonly integrations?: {
     topgg?: {
@@ -110,12 +127,22 @@ export interface Project {
       }
     }
   },
+  readonly store?: {
+    message_id: string,
+    channel_id: string,
+    readonly products: Product[]
+  }
+
+  // runtime
   readonly goals: Goal[]
 }
 
 export type Transaction = ({
-  type: 'purchase' | 'pledge',
+  type: 'pledge',
   target: number
+} | {
+  type: 'purchase',
+  target: string
 } | {
   type: 'acquire',
   target: string

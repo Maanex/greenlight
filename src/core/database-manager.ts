@@ -21,8 +21,8 @@ export default class DatabaseManager {
   private static projectsCacheLastUpdate: number = 0
   private static readonly projectsCacheLifetime: number = 1000 * 60 * 10
 
-  private static async updateCache() {
-    if (Date.now() - this.projectsCacheLastUpdate < this.projectsCacheLifetime) return
+  public static async updateCache(force = false) {
+    if (!force && (Date.now() - this.projectsCacheLastUpdate < this.projectsCacheLifetime)) return
 
     const projects = await this.fetchProjects()
     this.projectsCacheDataById = new Map()
@@ -117,6 +117,23 @@ export default class DatabaseManager {
       }))
     } catch (err) {
       return null
+    }
+  }
+
+  public static async addGoal(project: Project, goal: Goal): Promise<boolean> {
+    try {
+      const insert = JSON.parse(JSON.stringify(goal))
+      delete insert.message
+      delete insert.projectid
+      delete insert.recents
+      delete insert.addPledge
+
+      await Database
+        .collection(project._id + '_goals')
+        .insertOne(insert)
+      return true
+    } catch (err) {
+      return false
     }
   }
 
