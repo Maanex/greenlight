@@ -29,11 +29,15 @@ router.post(
 
       if (req.body.type === 'test') {
         console.log('TEST RUN')
-        continue
+        req.body.user = '137258778092503042'
+        // continue
       }
 
       const guild = await Core.guilds.fetch(project.discord_guild_id)
+      console.log('guild', JSON.stringify(guild))
       const member = await guild.members.fetch(req.body.user)
+      console.log('req', req.body.user)
+      console.log('member', JSON.stringify(member))
       if (!member) continue
 
       console.log('4')
