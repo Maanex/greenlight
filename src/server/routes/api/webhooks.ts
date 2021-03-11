@@ -14,14 +14,10 @@ router.post(
 
     const botid = req.body?.bot || undefined
     for (const project of await DatabaseManager.getProjects()) {
-      console.log('1')
       const conf = project.integrations?.topgg?.bots?.find(b => b.id === botid)
       if (!conf) continue
-      console.log('2')
 
       if (auth !== conf.auth) continue
-
-      console.log('3')
 
       const delta = (conf.reward_weekend !== undefined && req.body.isWeekend)
         ? conf.reward_weekend
@@ -29,18 +25,12 @@ router.post(
 
       if (req.body.type === 'test') {
         console.log('TEST RUN')
-        req.body.user = '137258778092503042'
-        // continue
+        continue
       }
 
       const guild = await Core.guilds.fetch(project.discord_guild_id)
-      console.log('guild', JSON.stringify(guild))
       const member = await guild.members.fetch(req.body.user)
-      console.log('req', req.body.user)
-      console.log('member', JSON.stringify(member))
       if (!member) continue
-
-      console.log('4')
 
       const error = await DatabaseManager.modTokens(req.body.user, project._id, delta, {
         type: 'acquire',
@@ -48,9 +38,6 @@ router.post(
         timestamp: Date.now() / 1000,
         target: 'topgg'
       })
-
-      console.log('5')
-      console.log(error)
 
       if (!error && project.integrations.topgg.announce) {
         const settings = project.integrations.topgg.announce
@@ -65,11 +52,8 @@ router.post(
             : settings.text
           loc.send(text.split('{user}').join(`<@${req.body.user}>`))
         } catch (err) {
-          console.log('e2')
-          console.log(err)
         }
       }
-      console.log('6')
     }
 
     res.status(200).send('Thank you')
