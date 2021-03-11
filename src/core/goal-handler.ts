@@ -48,13 +48,13 @@ export default class GoalHandler {
   //
 
   public async updateMessage() {
-    const embed = await generateEmbedFromGoal(this.goal, GoalHandler.goalRecents.get(this.goal._id))
+    const embed = await generateEmbedFromGoal(this.goal, GoalHandler.goalRecents.get(this.goal._id) || {})
     this.goal.message.edit('', { embed })
   }
 
   public async addPledge(amount: number, user: string) {
     const userdata = await DatabaseManager.getUser(user, this.goal.projectid)
-    const goalRecents = GoalHandler.goalRecents.get(this.goal._id)
+    const goalRecents = GoalHandler.goalRecents.get(this.goal._id) || {}
     const usertokens = userdata ? (userdata.tokens - Math.abs(goalRecents[user] || 0)) : 0
     const isGoalComplete = this.goal.current >= this.goal.cost
 
@@ -110,6 +110,7 @@ export default class GoalHandler {
     if (GoalHandler.userRecentsTimeout.has(user))
       clearTimeout(GoalHandler.userRecentsTimeout.get(user))
     GoalHandler.userRecentsTimeout.set(user, timeout)
+    GoalHandler.goalRecents.set(this.goal._id, goalRecents)
   }
 
   public async postGoalCompleteMessage() {
