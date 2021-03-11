@@ -33,7 +33,8 @@ router.post(
       }
 
       const guild = await Core.guilds.fetch(project.discord_guild_id)
-      if (!guild.members.resolve(req.body.user)) continue
+      const member = await guild.members.fetch(req.body.user)
+      if (!member) continue
 
       console.log('4')
 
