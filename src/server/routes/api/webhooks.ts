@@ -28,9 +28,10 @@ router.post(
         continue
       }
 
-      const guild = await Core.guilds.fetch(project.discord_guild_id)
-      const member = await guild.members.fetch(req.body.user)
-      if (!member) continue
+      // TODO fix and turn on again idk
+      // const guild = await Core.guilds.fetch(project.discord_guild_id)
+      // const member = await guild.members.fetch(req.body.user)
+      // if (!member) continue
 
       const error = await DatabaseManager.modTokens(req.body.user, project._id, delta, {
         type: 'acquire',
