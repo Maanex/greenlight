@@ -57,7 +57,7 @@ export class GreenlightBot extends Client {
         GoalHandler.init(this)
         StoreHandler.init(this)
 
-        Server.start(5008)
+        Server.start(config.server.port)
 
         // TODO find an actual fix for this instead of this garbage lol
         const manualConnectTimer = setTimeout(() => {
