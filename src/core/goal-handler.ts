@@ -86,6 +86,8 @@ export default class GoalHandler {
       if (!GoalHandler.goalUpdateQueue.includes(this.goal.message_id))
         GoalHandler.goalUpdateQueue.push(this.goal.message_id)
 
+      GoalHandler.goalRecents.set(this.goal._id, goalRecents)
+
       if (finalAmount === 0) return
       finalAmount = Math.abs(finalAmount)
 
