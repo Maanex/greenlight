@@ -131,6 +131,7 @@ export default class DatabaseManager {
       await Database
         .collection(project._id + '_goals')
         .insertOne(insert)
+      this.updateCache(true)
       return true
     } catch (err) {
       return false

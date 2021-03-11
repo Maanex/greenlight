@@ -107,7 +107,6 @@ export default class AdminHandler extends CommandHandler {
     }
 
     DatabaseManager.addGoal(project, goal)
-    DatabaseManager.updateCache(true)
     GoalHandler.forGoal(goal).updateMessage()
 
     if (project.store) {

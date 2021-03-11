@@ -48,7 +48,7 @@ export default class GoalHandler {
   //
 
   public async updateMessage() {
-    const embed = await generateEmbedFromGoal(this.goal)
+    const embed = await generateEmbedFromGoal(this.goal, GoalHandler.goalRecents.get(this.goal._id))
     this.goal.message.edit('', { embed })
   }
 
