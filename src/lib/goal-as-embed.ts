@@ -5,7 +5,7 @@ import { Goal } from '../types'
 import { generateProgressBar } from './emoji-progessbar'
 
 
-export default async function generateEmbedFromGoal(goal: Goal): Promise<Partial<MessageEmbed>> {
+export default async function generateEmbedFromGoal(goal: Goal, goalRecents: Object): Promise<Partial<MessageEmbed>> {
   const project = await DatabaseManager.getProjectById(goal.projectid)
   const reached = goal.current >= goal.cost
 
@@ -14,24 +14,24 @@ export default async function generateEmbedFromGoal(goal: Goal): Promise<Partial
     : ''
 
   let recentsText = ''
-  if (Object.keys(goal.recents).length) {
+  if (Object.keys(goalRecents).length) {
     const keys = Object
-      .keys(goal.recents)
+      .keys(goalRecents)
       .slice(0, 10)
-      .sort((a, b) => (goal.recents[a] === 0 ? -1 : goal.recents[b] === 0 ? 1 : 0))
+      .sort((a, b) => (goalRecents[a] === 0 ? -1 : goalRecents[b] === 0 ? 1 : 0))
 
     const recents = keys.map((uid) => {
       let out = `<@${uid}>`
-      if (goal.recents[uid] !== 0)
-        out += ` contributed ${Math.abs(goal.recents[uid])} ${([ project.display.token_name_zero, project.display.token_name_one ])[Math.abs(goal.recents[uid])] || project.display.token_name_multiple}.`
-      if (goal.recents[uid] <= 0)
+      if (goalRecents[uid] !== 0)
+        out += ` contributed ${Math.abs(goalRecents[uid])} ${([ project.display.token_name_zero, project.display.token_name_one ])[Math.abs(goalRecents[uid])] || project.display.token_name_multiple}.`
+      if (goalRecents[uid] <= 0)
         out += ` You don't have any ${project.display.token_name_multiple} left to spend!`
       return out
     })
 
     recentsText = `\n${recents.join('\n')}\n`
-    if (Object.keys(goal.recents).length > 10)
-      recentsText += `*+${Object.keys(goal.recents).length - recents.length} more...*\n`
+    if (Object.keys(goalRecents).length > 10)
+      recentsText += `*+${Object.keys(goalRecents).length - recents.length} more...*\n`
   }
 
   const description = [

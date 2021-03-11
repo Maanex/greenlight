@@ -11,6 +11,7 @@ export default class GoalHandler {
 
   private static goalUpdateQueue: string[] = [] // goal message ids
   private static userRecentsTimeout: Map<string, NodeJS.Timeout> = new Map()
+  private static goalRecents: Map<number, Object> = new Map()
 
   public static init(_bot: GreenlightBot) {
     setInterval(async () => {
@@ -53,21 +54,22 @@ export default class GoalHandler {
 
   public async addPledge(amount: number, user: string) {
     const userdata = await DatabaseManager.getUser(user, this.goal.projectid)
-    const usertokens = userdata ? (userdata.tokens - Math.abs(this.goal.recents[user] || 0)) : 0
+    const goalRecents = GoalHandler.goalRecents.get(this.goal._id)
+    const usertokens = userdata ? (userdata.tokens - Math.abs(goalRecents[user] || 0)) : 0
     const isGoalComplete = this.goal.current >= this.goal.cost
 
     if (usertokens >= amount) {
       this.goal.current += amount
-      this.goal.recents[user] = (this.goal.recents[user] || 0) + amount
+      goalRecents[user] = (goalRecents[user] || 0) + amount
     } else if (usertokens > 0) {
       amount = usertokens
       this.goal.current += usertokens
-      this.goal.recents[user] = (this.goal.recents[user] || 0) + usertokens
+      goalRecents[user] = (goalRecents[user] || 0) + usertokens
     } else {
       amount = 0
-      const rn = this.goal.recents[user]
-      if (!rn) this.goal.recents[user] = 0
-      else if (rn > 0) this.goal.recents[user] *= -1
+      const rn = goalRecents[user]
+      if (!rn) goalRecents[user] = 0
+      else if (rn > 0) goalRecents[user] *= -1
     }
 
     if (!isGoalComplete && this.goal.current >= this.goal.cost)
@@ -78,8 +80,9 @@ export default class GoalHandler {
 
     const timeout = setTimeout(() => {
       GoalHandler.userRecentsTimeout.delete(user)
-      let finalAmount = this.goal.recents[user]
-      delete this.goal.recents[user]
+      const goalRecents = GoalHandler.goalRecents.get(this.goal._id)
+      let finalAmount = goalRecents[user]
+      delete goalRecents[user]
       if (!GoalHandler.goalUpdateQueue.includes(this.goal.message_id))
         GoalHandler.goalUpdateQueue.push(this.goal.message_id)
 

@@ -74,9 +74,6 @@ export interface Goal {
   // runtime
   readonly projectid: string,
   readonly message: Message,
-  recents: {
-    [userid: string]: number
-  },
   addPledge(amount: number, user: string)
 }
 

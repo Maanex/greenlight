@@ -101,7 +101,6 @@ export default class AdminHandler extends CommandHandler {
       // runtime
       projectid: project._id,
       message,
-      recents: {},
       addPledge(amount: number, user: string) {
         GoalHandler.forGoal(goal).addPledge(amount, user)
       }
