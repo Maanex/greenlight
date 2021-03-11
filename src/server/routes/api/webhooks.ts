@@ -35,7 +35,7 @@ router.post(
       const error = await DatabaseManager.modTokens(req.body.user, project._id, delta, {
         type: 'acquire',
         delta,
-        timestamp: Date.now() / 1000,
+        timestamp: ~~(Date.now() / 1000),
         target: 'topgg'
       })
 

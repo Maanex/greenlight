@@ -77,7 +77,7 @@ export default class StoreHandler {
       type: 'purchase',
       delta: -product.price,
       target: product.name,
-      timestamp: Date.now() / 1000
+      timestamp: ~~(Date.now() / 1000)
     })
 
     // if successfull

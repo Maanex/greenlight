@@ -47,7 +47,7 @@ export default class AdminHandler extends CommandHandler {
       type: 'admin',
       issuer: command.member.user.id,
       delta: <number>options.amount,
-      timestamp: Date.now() / 1000,
+      timestamp: ~~(Date.now() / 1000),
       reason: options.reason + ''
     })
 

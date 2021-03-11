@@ -99,7 +99,7 @@ export default class GoalHandler {
           type: 'pledge',
           delta: -finalAmount,
           target: this.goal._id,
-          timestamp: Date.now() / 1000
+          timestamp: ~~(Date.now() / 1000)
         })
       }
     }, 10000)
