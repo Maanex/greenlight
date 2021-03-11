@@ -78,6 +78,9 @@ export default class GoalHandler {
     if (!GoalHandler.goalUpdateQueue.includes(this.goal.message_id))
       GoalHandler.goalUpdateQueue.push(this.goal.message_id)
 
+    if (GoalHandler.userRecentsTimeout.has(user))
+      clearTimeout(GoalHandler.userRecentsTimeout.get(user))
+
     const timeout = setTimeout(() => {
       GoalHandler.userRecentsTimeout.delete(user)
       const goalRecents = GoalHandler.goalRecents.get(this.goal._id)
@@ -108,9 +111,6 @@ export default class GoalHandler {
         })
       }
     }, 10000)
-
-    if (GoalHandler.userRecentsTimeout.has(user))
-      clearTimeout(GoalHandler.userRecentsTimeout.get(user))
     GoalHandler.userRecentsTimeout.set(user, timeout)
     GoalHandler.goalRecents.set(this.goal._id, goalRecents)
   }
