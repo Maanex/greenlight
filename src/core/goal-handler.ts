@@ -78,11 +78,11 @@ export default class GoalHandler {
     if (!GoalHandler.goalUpdateQueue.includes(this.goal.message_id))
       GoalHandler.goalUpdateQueue.push(this.goal.message_id)
 
-    if (GoalHandler.userRecentsTimeout.has(user))
-      clearTimeout(GoalHandler.userRecentsTimeout.get(user))
+    if (GoalHandler.userRecentsTimeout.has(user + this.goal._id))
+      clearTimeout(GoalHandler.userRecentsTimeout.get(user + this.goal._id))
 
     const timeout = setTimeout(() => {
-      GoalHandler.userRecentsTimeout.delete(user)
+      GoalHandler.userRecentsTimeout.delete(user + this.goal._id)
       const goalRecents = GoalHandler.goalRecents.get(this.goal._id)
       let finalAmount = goalRecents.get(user)
       goalRecents.delete(user)
@@ -111,7 +111,7 @@ export default class GoalHandler {
         })
       }
     }, 10000)
-    GoalHandler.userRecentsTimeout.set(user, timeout)
+    GoalHandler.userRecentsTimeout.set(user + this.goal._id, timeout)
     GoalHandler.goalRecents.set(this.goal._id, goalRecents)
   }
 
