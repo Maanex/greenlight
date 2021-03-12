@@ -5,7 +5,7 @@ import { Goal } from '../types'
 import { generateProgressBar } from './emoji-progessbar'
 
 
-export default async function generateEmbedFromGoal(goal: Goal, goalRecents: Object): Promise<Partial<MessageEmbed>> {
+export default async function generateEmbedFromGoal(goal: Goal, goalRecents: Map<string, number>): Promise<Partial<MessageEmbed>> {
   const project = await DatabaseManager.getProjectById(goal.projectid)
   const reached = goal.current >= goal.cost
 
@@ -14,24 +14,23 @@ export default async function generateEmbedFromGoal(goal: Goal, goalRecents: Obj
     : ''
 
   let recentsText = ''
-  if (Object.keys(goalRecents).length) {
-    const keys = Object
-      .keys(goalRecents)
+  if (goalRecents.size) {
+    const keys = [ ...goalRecents.keys() ]
       .slice(0, 10)
-      .sort((a, b) => (goalRecents[a] === 0 ? -1 : goalRecents[b] === 0 ? 1 : 0))
+      .sort((a, b) => (goalRecents.get(a) === 0 ? -1 : goalRecents.get(b) === 0 ? 1 : 0))
 
     const recents = keys.map((uid) => {
       let out = `<@${uid}>`
-      if (goalRecents[uid] !== 0)
-        out += ` contributed ${Math.abs(goalRecents[uid])} ${([ project.display.token_name_zero, project.display.token_name_one ])[Math.abs(goalRecents[uid])] || project.display.token_name_multiple}.`
-      if (goalRecents[uid] <= 0)
+      if (goalRecents.get(uid) !== 0)
+        out += ` contributed ${Math.abs(goalRecents.get(uid))} ${([ project.display.token_name_zero, project.display.token_name_one ])[Math.abs(goalRecents.get(uid))] || project.display.token_name_multiple}.`
+      if (goalRecents.get(uid) <= 0)
         out += ` You don't have any ${project.display.token_name_multiple} left to spend!`
       return out
     })
 
     recentsText = `\n${recents.join('\n')}\n`
-    if (Object.keys(goalRecents).length > 10)
-      recentsText += `*+${Object.keys(goalRecents).length - recents.length} more...*\n`
+    if (goalRecents.size > 10)
+      recentsText += `*+${goalRecents.size - recents.length} more...*\n`
   }
 
   const description = [
