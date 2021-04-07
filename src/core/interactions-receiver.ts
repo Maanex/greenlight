@@ -7,7 +7,7 @@ import AdminHandler from './commands/admin'
 
 export default class InteractionReceiver {
 
-  private static readonly HANDLER: { [token: string]: CommandHandler } = {}
+  public static readonly HANDLER: { [token: string]: CommandHandler } = {}
 
   public static init(bot: GreenlightBot) {
     bot.on('raw', (event: Event) => {
@@ -21,6 +21,7 @@ export default class InteractionReceiver {
   }
 
   private static onInteraction(i: Interaction) {
+    if (!i.guild_id) return
     if (this.HANDLER[i.data.name])
       this.HANDLER[i.data.name].handle(i, this.getReplyFunction(i))
     else
@@ -28,7 +29,7 @@ export default class InteractionReceiver {
   }
 
   private static getReplyFunction(i: Interaction): ReplyFunction {
-    const types: InteractionResponseType[] = [ 'Pong', 'Acknowledge', 'ChannelMessage', 'ChannelMessageWithSource', 'AcknowledgeWithSource' ]
+    const types: InteractionResponseType[] = [ 'Pong', 'deprecated-Acknowledge', 'deprecated-ChannelMessage', 'ChannelMessageWithSource', 'DeferredChannelMessageWithSource' ]
     return (type: InteractionResponseType, data?: InteractionApplicationCommandCallbackData) => {
       Axios.post(`https://discord.com/api/v8/interactions/${i.id}/${i.token}/callback`, { type: types.indexOf(type) + 1, data })
     }

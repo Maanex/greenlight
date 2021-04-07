@@ -33,17 +33,30 @@ export default async function generateEmbedFromGoal(goal: Goal, goalRecents: Map
       recentsText += `*+${goalRecents.size - recents.length} more...*\n`
   }
 
-  const description = [
-    goal.description.split('\\n').join('\n'),
-    reachedText || '',
-    Const.EMOJIS.WHITESPACE + ' ' + generateProgressBar(goal.current / goal.cost, 7) + Const.EMOJIS.WHITESPACE + ` ** ${goal.current}/${goal.cost}**`,
-    recentsText || '',
-    `*${project.display.token_icon_one} contribute 1 ${project.display.token_name_one} ${Const.EMOJIS.WHITESPACE} ${project.display.token_icon_multiple} contribute 5 ${project.display.token_name_multiple}*`
-  ].join('\n')
+  /* eslint-disable indent */
+  /* eslint-disable multiline-ternary */
+  const description = goal.finished
+    ? [
+      goal.description.split('\\n').join('\n'),
+      `\n${Const.EMOJIS.WHITESPACE}${Const.EMOJIS.WHITESPACE}${Const.EMOJIS.WHITESPACE}**Completed!**`,
+      Const.EMOJIS.WHITESPACE + ' ' + generateProgressBar(goal.current / goal.cost, 7) + Const.EMOJIS.WHITESPACE + ` ** ${goal.current}/${goal.cost}**`
+    ] : [
+      goal.description.split('\\n').join('\n'),
+      reachedText || '',
+      Const.EMOJIS.WHITESPACE + ' ' + generateProgressBar(goal.current / goal.cost, 7) + Const.EMOJIS.WHITESPACE + ` ** ${goal.current}/${goal.cost}**`,
+      recentsText || '',
+      `*${project.display.token_icon_one} contribute 1 ${project.display.token_name_one} ${Const.EMOJIS.WHITESPACE} ${project.display.token_icon_multiple} contribute 5 ${project.display.token_name_multiple}*`
+    ]
+  /* eslint-enable multiline-ternary */
+  /* eslint-enable indent */
 
   return {
     title: goal.title,
-    description,
-    color: reached ? 0x45B583 : 0x1F2324
+    description: description.join('\n'),
+    color: goal.finished
+      ? 0x68B2E3
+      : reached
+        ? 0x45B583
+        : 0x1F2324
   }
 }

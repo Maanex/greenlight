@@ -26,7 +26,7 @@ async function run() {
     options: [
       {
         name: 'tokens',
-        description: 'Change a users tokens',
+        description: 'ADMIN ONLY - Change a users tokens',
         type: 1,
         options: [
           {
@@ -51,7 +51,7 @@ async function run() {
       },
       {
         name: 'test',
-        description: 'test',
+        description: 'ADMIN ONLY - test',
         type: 1,
         options: [
           {
@@ -64,7 +64,7 @@ async function run() {
       },
       {
         name: 'addgoal',
-        description: 'Add a new goal',
+        description: 'ADMIN ONLY - Add a new goal',
         type: 1,
         options: [
           {
@@ -95,7 +95,7 @@ async function run() {
       },
       {
         name: 'removegoal',
-        description: 'Remove a goal',
+        description: 'ADMIN ONLY - Remove a goal',
         type: 1,
         options: [
           {
@@ -108,7 +108,7 @@ async function run() {
       },
       {
         name: 'goalinfo',
-        description: 'View some info about a goal',
+        description: 'ADMIN ONLY - View some info about a goal',
         type: 1,
         options: [
           {
@@ -121,7 +121,7 @@ async function run() {
       },
       {
         name: 'editgoal',
-        description: 'Edit a goal',
+        description: 'ADMIN ONLY - Edit a goal',
         type: 1,
         options: [
           {
@@ -144,6 +144,32 @@ async function run() {
           {
             name: 'new_value',
             description: 'The propertie\'s new value',
+            type: 3,
+            required: true
+          }
+        ]
+      },
+      {
+        name: 'users',
+        description: 'ADMIN ONLY - Users info',
+        type: 1,
+        options: [
+          {
+            name: 'target',
+            description: '"top", "total", goal message id or user id',
+            type: 3,
+            required: true
+          }
+        ]
+      },
+      {
+        name: 'finishgoal',
+        description: 'ADMIN ONLY - Finishes a goal. Or unfinishes it if it is already finished. Finnish.',
+        type: 1,
+        options: [
+          {
+            name: 'messageid',
+            description: 'Messageid of the goal',
             type: 3,
             required: true
           }

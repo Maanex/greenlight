@@ -12,6 +12,7 @@ export default class TokensHandler extends CommandHandler {
 
     const project = await DatabaseManager.getProjectByGuild(command.guild_id)
     const user = await DatabaseManager.getUser(command.member.user.id, project._id)
+    // WARNING - command.member could differ from the actual member. See AdminCommands::subcmdUsers
 
     let text = ''
     if (user) {
@@ -26,7 +27,7 @@ export default class TokensHandler extends CommandHandler {
       text = `**You have 0 ${project.display.token_icon_one}**\n\n${project.texts.get_tokens}`
     }
 
-    reply('ChannelMessage', {
+    reply('ChannelMessageWithSource', {
       content: text,
       flags: InteractionResponseFlags.EPHEMERAL
     })

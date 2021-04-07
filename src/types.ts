@@ -37,7 +37,7 @@ export type Interaction = {
   channel_id: string
 }
 
-export type InteractionResponseType = 'Pong' | 'Acknowledge' | 'ChannelMessage' | 'ChannelMessageWithSource' | 'AcknowledgeWithSource'
+export type InteractionResponseType = 'Pong' | 'deprecated-Acknowledge' | 'deprecated-ChannelMessage' | 'ChannelMessageWithSource' | 'DeferredChannelMessageWithSource'
 
 export enum InteractionResponseFlags {
   EPHEMERAL = 64
@@ -63,6 +63,7 @@ export interface Goal {
   readonly _id: number,
   readonly cost: number,
   current: number,
+  finished: boolean,
   readonly title: string,
   readonly description: string,
   readonly message_channel: string
