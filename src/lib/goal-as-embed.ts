@@ -38,8 +38,7 @@ export default async function generateEmbedFromGoal(goal: Goal, goalRecents: Map
   const description = goal.finished
     ? [
       goal.description.split('\\n').join('\n'),
-      `\n${Const.EMOJIS.WHITESPACE}${Const.EMOJIS.WHITESPACE}${Const.EMOJIS.WHITESPACE}**Completed!**`,
-      Const.EMOJIS.WHITESPACE + ' ' + generateProgressBar(goal.current / goal.cost, 7) + Const.EMOJIS.WHITESPACE + ` ** ${goal.current}/${goal.cost}**`
+      `${Const.EMOJIS.WHITESPACE}${Const.EMOJIS.WHITESPACE}${Const.EMOJIS.WHITESPACE}**Completed!**${Const.EMOJIS.WHITESPACE}${Const.EMOJIS.WHITESPACE} ** ${goal.current}/${goal.cost}**`
     ] : [
       goal.description.split('\\n').join('\n'),
       reachedText || '',
