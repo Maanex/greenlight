@@ -2,10 +2,10 @@ FROM node:alpine
 
 RUN apk add git
 
-WORKDIR /opt/greenlight/bot
+RUN mkdir -p /greenlight
+WORKDIR /greenlight
 
 ENV NODE_ENV=production
-
 ENV NO_SHARDING=true
 
 COPY package*.json ./
@@ -14,6 +14,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+COPY config.docker.js config.js
 
 RUN npm run build
 

@@ -3,5 +3,15 @@
 /files
 /build
 
+jarn.lock
+config.js
+
+/.github
+/scripts
+/docs
+
+*.log
+*.md
+
 # config/settings.json
 # config.js
