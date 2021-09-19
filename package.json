@@ -4,7 +4,7 @@
   "description": "The official Discord Bot for FreeStuffBot.xyz",
   "main": "build/index.js",
   "scripts": {
-    "start": "node ./build/index.js --noSharding --dev",
+    "start": "node ./build/index.js --noSharding",
     "build": "tsc",
     "dev": "tsc && node --trace-warnings ./build/index.js --noSharding --dev",
     "test": "echo \"No test specified\" && exit 0",

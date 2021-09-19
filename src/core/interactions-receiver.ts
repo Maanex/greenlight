@@ -30,8 +30,10 @@ export default class InteractionReceiver {
 
   private static getReplyFunction(i: Interaction): ReplyFunction {
     const types: InteractionResponseType[] = [ 'Pong', 'deprecated-Acknowledge', 'deprecated-ChannelMessage', 'ChannelMessageWithSource', 'DeferredChannelMessageWithSource' ]
-    return (type: InteractionResponseType, data?: InteractionApplicationCommandCallbackData) => {
-      Axios.post(`https://discord.com/api/v8/interactions/${i.id}/${i.token}/callback`, { type: types.indexOf(type) + 1, data })
+    return async (type: InteractionResponseType, data?: InteractionApplicationCommandCallbackData) => {
+      try {
+        await Axios.post(`https://discord.com/api/v8/interactions/${i.id}/${i.token}/callback`, { type: types.indexOf(type) + 1, data }, { validateStatus: null })
+      } catch (_) { }
     }
   }
 

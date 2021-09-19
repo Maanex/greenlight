@@ -51,7 +51,7 @@ router.post(
           const text = (conf.reward_weekend !== undefined && req.body.isWeekend && settings.text_weekend)
             ? settings.text_weekend
             : settings.text
-          loc.send(text.split('{user}').join(`<@${req.body.user}>`))
+          await loc.send(text.split('{user}').join(`<@${req.body.user}>`))
         } catch (err) {
         }
       }
